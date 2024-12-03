@@ -26,7 +26,7 @@ using RainwaterHarvesting         # <2>
 Next, we specify the path to the rainfall data file and read it in.
 
 ```{julia}
-filepath = "data/1.txt" # <1>   
+filepath = "data/40.txt" # <1>   
 rainfall_data = RainfallData(filepath) # <2>
 ```
 
@@ -50,7 +50,9 @@ plot(rainfall_data) # <1>
 
 ### Discussion
 
-*Insert discussion here*
+*1979-1980-1981-1982-1988-1990...2009-2011...2023
+
+These are the years used in this data set. The years 1983, 1984,1985,1986,1987,1988, 1989, and 2010 are not utilized. Therefore the time this graph uses is a total of 30 years. However, this is not sufficient as it is stated that a signifigant statistical anaylyses requires at least 100 by the NIH. In Ceara, the major droughts that have occured have been 1877 to 1879, 1973, 1983, 1992, 1998 and a drought that was from 2012 to 2017. Our model only has the major droughts of 2012 to 2017, 1998, and 1992. Without this data our understanding of the rainfall data is limited as tools such as predictive models will not be as accurate. *
 
 ## Understanding the Theoretical Model
 
@@ -60,27 +62,16 @@ Let's explore the model that simulates the rainwater harvesting system.
 
 The mass balance model for the rainwater tank is given by:
 
-$$
-V_{t+1} = V_t + Q_t - C_t | 0 \leq V_t \leq V_\text{max}
-$$
-
-- $V_t$: the volume of water in the tank at time $t$
-- $Q_t$ is the volume of water added to the tank at time $t$
-- $C_t$ is the volume of water consumed at time $t$
-- $V_\text{max}$: the maximum volume of the tank
+*For this mass balance equation, some assumptions include conservation of mass, no leakage or loss, and that its acting as an independent system. To ease these assumptions, I would ass a Loss (L_t) variable: V_(t+1)=V_t+Q_t-C_t-L_t. Adding a loss constant for processes such as evaporation makes this model more applicable to real life settings. *
 
 ### Inflow ($Q_t$)
 
 Inflow is calculated as
 
-$$
-Q_t = \eta \times A \times \max(P_t - F, 0).
-$$
-
-- $\eta$: the runoff coefficient, which accounts for losses due to evaporation, spilling, etc.
-- $A$: the area of the roof (we will use square meters)
-- $P_t$: the precipitation at time $t$ (we will use millimeters per day)
-- $F$: the first flush volume (we will use millimeters). The first flush volume is often discarded, so that each time it rains the first bit of water (which is usually dirty) is not used (see [here](https://rainwaterharvesting.tamu.edu/pre-storage-treatment/) for more details).
+*Considering events such as spilling and evaporation, we assume that the run off coefficient is constant. However precipiattion is not at a fixed rate and factors such as temperature may cause precipiation to rise or fall which would influence the runn off constant. By introducing a functional form of the run off coefficnet as a function of precipiation and temperature we can account for this. (Runoff Coeff)t=f(P,T)
+Linear Dependency Model: (Runoff Coeff)t=(Runoff Coeff)0+k1*Pt+k2*Tt
+So, (Runoff Coeff)t=((Runoff Coeff)0+k1*Pt+k2*Tt)*A*max(Pt-F,0)
+k1, k2, and (Runoff Coeff)0 can be found through real world data through technqiues regarding optimization or regression. *
 
 ### Consumption
 
@@ -93,11 +84,11 @@ C_t = \begin{cases}
 \end{cases}
 $$
 
-This makes two major assumptiuons.
+*This makes two major assumptions.
 First, the household begins using water from the tank after the 150th day of the year.
 This is based on the idea that the rainy season lasts for about the first 150 days of the year, and so they may have other sources of water before then.
-The second assumption is that each household consumes 74.1 liters per day during the dry season.
-How does this compare to your household's water usage?
+The second assumption is that each household consumes 74.1 liters per day during the dry season. Despite this, water consumption will still vary among regions and households. 
+To modify this model we can adjust the average use of water parameter to be dependent on the amount of people in each household. By adding variable c (average per capita water usage) and Nh (Number of people in the household) we derive the model: Ct=c*Nh.  *
 
 ## Model Implementation and Testing
 
@@ -110,9 +101,9 @@ You will have the opportunity to change these values later.
 #| output: false
 param = ModelParameters(          # <1>
     runoff_coefficient=0.85,      # <2>
-    roof_area_m2=45.0,            # <3>
+    roof_area_m2=100.0,            # <3>
     first_flush_mm=2.0,           # <4>
-    tank_capacity_L=16000.0       # <5>
+    tank_capacity_L=19000.0       # <5>
 )
 ```
 
@@ -162,3 +153,4 @@ println("Number of years with failures: ", sum(any_failures), " out of ", length
 2. We run the simulation for each year.
 3. We check if any failures occurred.
 4. We print the number of years with failures and the total number of years.
+
