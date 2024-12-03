@@ -77,18 +77,13 @@ k1, k2, and (Runoff Coeff)0 can be found through real world data through technqi
 
 Consumption is modeled as:
 
-$$
-C_t = \begin{cases}
-    74.1 & \quad \text{day of year} > 150 \\
-    0 & \quad \text{day of year} \leq 150
-\end{cases}
-$$
-
-*This makes two major assumptions.
+*
+This makes two major assumptions.
 First, the household begins using water from the tank after the 150th day of the year.
 This is based on the idea that the rainy season lasts for about the first 150 days of the year, and so they may have other sources of water before then.
 The second assumption is that each household consumes 74.1 liters per day during the dry season. Despite this, water consumption will still vary among regions and households. 
-To modify this model we can adjust the average use of water parameter to be dependent on the amount of people in each household. By adding variable c (average per capita water usage) and Nh (Number of people in the household) we derive the model: Ct=c*Nh.  *
+To modify this model we can adjust the average use of water parameter to be dependent on the amount of people in each household. By adding variable c (average per capita water usage) and Nh (Number of people in the household) we derive the model: Ct=c*Nh.  
+*
 
 ## Model Implementation and Testing
 
@@ -101,9 +96,9 @@ You will have the opportunity to change these values later.
 #| output: false
 param = ModelParameters(          # <1>
     runoff_coefficient=0.85,      # <2>
-    roof_area_m2=100.0,            # <3>
+    roof_area_m2=90.0,            # <3>
     first_flush_mm=2.0,           # <4>
-    tank_capacity_L=19000.0       # <5>
+    tank_capacity_L=17000.0       # <5>
 )
 ```
 
@@ -154,3 +149,4 @@ println("Number of years with failures: ", sum(any_failures), " out of ", length
 3. We check if any failures occurred.
 4. We print the number of years with failures and the total number of years.
 
+*My modification incuded increasing the volume by 1000L and doubling the surface area of the roof. Because it is more complicated to adjust the first flush volume than it is to alter the other parameters, I relied soley on volume and roof surface area to mitigate the effects of droughts. I decreased to failures from 3/38 to 0/38 using this modification which would provide a reliability percentage of 100%, however this is only an estiation given the current model. This model is limoited by the insufficient sample size mentioned earlier. To extend our dataset, we can preform 'bootstrapping' which involved sampling the observed data with replacement to simulate multiple realizations. This would provide us with a nonideal set of data, however it may aid in its overall accuracy regardless. Extending our dataset would be useful so certain charatceristics can be more prevelany and relaible. *
