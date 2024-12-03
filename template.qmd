@@ -1,9 +1,9 @@
 ---
 title: "CEVE 101: Project 03"
-author: "Seth Hallbert sah25" # CHANGE THIS
+author: "Seth Hallbert sah25"
 date: "2024-12-24"
 
-# do not change anything below this line
+
 engine: julia
 code-annotations: hover
 format:
@@ -11,36 +11,28 @@ format:
     docx: default
 ---
 
-We begin by loading the required packages.
+
 
 ```{julia}
 using Revise                      # <1>
 using RainwaterHarvesting         # <2>
 ```
 
-1. `Revise` allows us to update code without restarting Julia.
-2. We load the `RainwaterHarvesting` package that contains our simulation tools.
+
 
 ### Setting the file path
 
-Next, we specify the path to the rainfall data file and read it in.
+
 
 ```{julia}
 filepath = "data/40.txt" # <1>   
 rainfall_data = RainfallData(filepath) # <2>
 ```
 
-1. This is the path to the rainfall data file for the station of interest.
-2. This creates a `RainfallData` object containing the rainfall data for the specified station.
-
-If we dig under the hood a bit, we can see that there are two main pieces of information:
-
-- `station_info`: a dictionary containing information about the station, such as its name and location.
-- `annual_data`: a dictionary mapping years to `AnnualRainfallData` objects, each containing the date and precipitation data for a given year.
 
 ### Plotting the Data
 
-We can plot the data for one or all of the years to verify that it looks correct.
+
 
 ```{julia}
 plot(rainfall_data) # <1>
@@ -56,7 +48,7 @@ These are the years used in this data set. The years 1983, 1984,1985,1986,1987,1
 
 ## Understanding the Theoretical Model
 
-Let's explore the model that simulates the rainwater harvesting system.
+
 
 ### Mass Balance Equation
 
@@ -89,8 +81,7 @@ To modify this model we can adjust the average use of water parameter to be depe
 
 ### Defining the Model Parameters
 
-We can define the model parameters with sensible default values.
-You will have the opportunity to change these values later.
+
 
 ```{julia}
 #| output: false
@@ -110,7 +101,7 @@ param = ModelParameters(          # <1>
 
 ### Running the Simulation for One Year
 
-Let's run the model for the year 1981.
+ model for the year 1981.
 
 ```{julia}
 rainfall_1981 = rainfall_data.annual_data[1981]    # <1>
@@ -129,8 +120,7 @@ p2 = plot(rainfall_1981)
 plot(p2, p1, layout=(2, 1), size=(1000, 700), link=:x)
 ```
 
-Observe how the tank's water level responds to rainfall events.
-Note any periods when the tank runs dry or overflows.
+
 
 ### Reliability Analysis
 
@@ -144,9 +134,6 @@ any_failures = [!isempty(result.failure_dates) for result in all_results]  # <3>
 println("Number of years with failures: ", sum(any_failures), " out of ", length(all_years))  # <4>
 ```
 
-1. We get all the years in order.
-2. We run the simulation for each year.
-3. We check if any failures occurred.
-4. We print the number of years with failures and the total number of years.
+
 
 *My modification incuded increasing the volume by 1000L and doubling the surface area of the roof. Because it is more complicated to adjust the first flush volume than it is to alter the other parameters, I relied soley on volume and roof surface area to mitigate the effects of droughts. I decreased to failures from 3/38 to 0/38 using this modification which would provide a reliability percentage of 100%, however this is only an estiation given the current model. This model is limoited by the insufficient sample size mentioned earlier. To extend our dataset, we can preform 'bootstrapping' which involved sampling the observed data with replacement to simulate multiple realizations. This would provide us with a nonideal set of data, however it may aid in its overall accuracy regardless. Extending our dataset would be useful so certain charatceristics can be more prevelany and relaible. *
